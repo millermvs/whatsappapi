@@ -10,7 +10,7 @@ public class CorsConfigurations implements WebMvcConfigurer {
 	@Override
 	public void addCorsMappings(CorsRegistry registry) {
 		registry.addMapping("/**") // libera para todos os endpoints da API
-                .allowedOrigins("http://localhost:4200", "https://app.automica.com.br") // URL do Angular
+                .allowedOrigins("http://localhost:4200", "https://sistema.automica.com.br") // URL do Angular
 				.allowedMethods("GET", "POST", "PUT", "DELETE") // métodos permitidos
                 .allowedHeaders("*") // libera todos os headers
                 .allowCredentials(true); // se precisar enviar cookies/autenticação

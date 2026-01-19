@@ -17,6 +17,7 @@ O sistema é responsável por:
 
 ## 🧱 Arquitetura (Visão Geral)
 
+```text
 modules/whatsapp
   ├─ application
   │   └─ controllers
@@ -30,5 +31,6 @@ modules/whatsapp
           ├─ adapter
           ├─ dto
           └─ mapper
+```
 
 ---
