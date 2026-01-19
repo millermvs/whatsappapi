@@ -1,0 +1,19 @@
+package br.com.automica.api.whatsapp.modules.shared.configurations;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class CorsConfigurations implements WebMvcConfigurer {
+
+	@Override
+	public void addCorsMappings(CorsRegistry registry) {
+		registry.addMapping("/**") // libera para todos os endpoints da API
+                .allowedOrigins("http://localhost:4200", "https://app.automica.com.br") // URL do Angular
+				.allowedMethods("GET", "POST", "PUT", "DELETE") // métodos permitidos
+                .allowedHeaders("*") // libera todos os headers
+                .allowCredentials(true); // se precisar enviar cookies/autenticação
+	}
+}
+
