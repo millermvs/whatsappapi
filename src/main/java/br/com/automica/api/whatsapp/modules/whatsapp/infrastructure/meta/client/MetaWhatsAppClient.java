@@ -1,5 +1,6 @@
 package br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.client;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -11,7 +12,7 @@ public class MetaWhatsAppClient {
 
 	private final WebClient webClient;
 	
-	//@Value("${meta.token}")
+	@Value("${meta.token}")
 	private String token;
 
 	public MetaWhatsAppClient(WebClient webCliente) {
