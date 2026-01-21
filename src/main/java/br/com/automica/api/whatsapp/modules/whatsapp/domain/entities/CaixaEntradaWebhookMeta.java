@@ -54,7 +54,6 @@ public class CaixaEntradaWebhookMeta {
 	@Column
 	private Long messageTimestamp;
 
-	@Lob
 	@Column(nullable = false, columnDefinition = "text")
 	private String payload;
 
@@ -64,7 +63,6 @@ public class CaixaEntradaWebhookMeta {
 	@Column
 	private Instant processedAt;
 
-	@Lob
 	@Column(columnDefinition = "text")
 	private String processingError;
 

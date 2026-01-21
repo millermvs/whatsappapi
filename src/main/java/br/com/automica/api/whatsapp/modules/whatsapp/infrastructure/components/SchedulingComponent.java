@@ -12,7 +12,7 @@ public class SchedulingComponent {
 	@Autowired
 	private CaixaEntradaWebhookMetaService caixaEntradaWebhookMetaService;
 	
-	@Scheduled(fixedDelay = 15000)
+	@Scheduled(fixedDelay = 150000000)
     public void processarPendentes() {
 		System.out.println("⏰ Scheduler rodando...");
         caixaEntradaWebhookMetaService.buscarMensagemNaoProcessadas();

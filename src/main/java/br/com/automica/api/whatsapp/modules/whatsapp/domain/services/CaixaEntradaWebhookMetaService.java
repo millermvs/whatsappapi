@@ -74,8 +74,9 @@ public class CaixaEntradaWebhookMetaService {
 
 	}
 
-	public void savePayload(JsonNode payload) {
-
+	@Transactional
+	public void savePayload(JsonNode payload) {		
+		
 		JsonNode entry0 = payload.path("entry").path(0);
 		JsonNode change0 = entry0.path("changes").path(0);
 		JsonNode value = change0.path("value");

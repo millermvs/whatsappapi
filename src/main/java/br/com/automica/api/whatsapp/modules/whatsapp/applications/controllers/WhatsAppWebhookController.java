@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
 import br.com.automica.api.whatsapp.modules.whatsapp.domain.services.CaixaEntradaWebhookMetaService;
 import tools.jackson.databind.JsonNode;
 
@@ -22,7 +21,7 @@ public class WhatsAppWebhookController {
 
 	@Value("${meta.webhook.verify-token}")
 	private String expectedVerifyToken;
-	
+
 	@Autowired
 	private CaixaEntradaWebhookMetaService caixaEntradaWebhookMeta;
 
@@ -43,12 +42,11 @@ public class WhatsAppWebhookController {
 
 	@PostMapping
 	public ResponseEntity<Void> receberWebhook(@RequestBody JsonNode payload) {
-		
+
 		caixaEntradaWebhookMeta.savePayload(payload);
 
-		System.out.println("WEBHOOK RECEBIDO: " + payload.toString());
+		//System.out.println("WEBHOOK RECEBIDO: " + payload);
 
 		return ResponseEntity.ok().build();
 	}
 }
-
