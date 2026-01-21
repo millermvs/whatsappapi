@@ -3,7 +3,7 @@ package br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.adapte
 import org.springframework.stereotype.Component;
 
 import br.com.automica.api.whatsapp.modules.whatsapp.domain.gateways.WhatsAppGateways;
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.models.Mensagem;
+import br.com.automica.api.whatsapp.modules.whatsapp.domain.models.MensagemOut;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.client.MetaWhatsAppClient;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.mappers.MetaMensagemMapper;
 
@@ -19,7 +19,7 @@ public class WhatsAppGatewayMetaAdapter implements WhatsAppGateways {
 	}
 
 	@Override
-	public String enviarMensagemTexto(Mensagem mensagem) {
+	public String enviarMensagemTexto(MensagemOut mensagem) {
 		var request = metaMensagemMapper.transformarMetaMensagemDeTexto(mensagem);
 		var response = metaWhatsAppClient.enviarMensagemTexto(request);
 		return response;

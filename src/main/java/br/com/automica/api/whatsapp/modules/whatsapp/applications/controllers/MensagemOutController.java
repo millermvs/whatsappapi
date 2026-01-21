@@ -8,21 +8,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.dtos.request.mensagem.MensagemRequestDto;
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.services.MensagemService;
+import br.com.automica.api.whatsapp.modules.whatsapp.domain.dtos.request.mensagem.MensagemOutRequestDto;
+import br.com.automica.api.whatsapp.modules.whatsapp.domain.services.MensagemOutService;
 
 
 
 @RestController
-@RequestMapping("/whatsapp/mensagens")
-public class MensagemController {
+@RequestMapping("/whatsapp/mensagens/enviar")
+public class MensagemOutController {
 
 	@Autowired
-	MensagemService mensagemService;
+	MensagemOutService mensagemService;
 
-	@PostMapping("enviar")
-	public ResponseEntity<String> post(@RequestBody MensagemRequestDto request) {
-		var response = mensagemService.enviarMensagem(request);
+	@PostMapping("texto")
+	public ResponseEntity<String> post(@RequestBody MensagemOutRequestDto request) {
+		var response = mensagemService.enviarMensagemTexto(request);
 		return ResponseEntity.ok(response);
 	}
 

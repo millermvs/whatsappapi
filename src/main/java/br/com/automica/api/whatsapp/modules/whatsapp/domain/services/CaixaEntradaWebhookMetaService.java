@@ -1,16 +1,12 @@
 package br.com.automica.api.whatsapp.modules.whatsapp.domain.services;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.com.automica.api.whatsapp.modules.whatsapp.domain.entities.CaixaEntradaWebhookMeta;
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.models.Mensagem;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.repositories.CaixaEntradaWebhookMetaRepository;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -23,106 +19,58 @@ public class CaixaEntradaWebhookMetaService {
 	@Autowired
 	private CaixaEntradaWebhookMetaRepository caixaEntradaWebhookMetaRepository;
 
-	@Transactional
-	public List<Mensagem> buscarMensagemNaoProcessadas() {
-		System.out.println("🔎 Buscando mensagens não processadas...");
+	public void savePayload(JsonNode payload) {
 
-		var mensagensNaoProcessadas = caixaEntradaWebhookMetaRepository.findByProcessedFalse();
-		System.out.println("📦 Encontradas " + mensagensNaoProcessadas.size() + " mensagens pendentes");
-
-
-		List<Mensagem> mensagensNovas = new ArrayList<Mensagem>();
-
-		if (mensagensNaoProcessadas.isEmpty()) {
-			return mensagensNovas;
-		} else {
-			for (var mensagens : mensagensNaoProcessadas) {
-				System.out.println("➡️ Processando inbox ID: " + mensagens.getId());
-
-				try {
-					JsonNode payload = objectMapper.readTree(mensagens.getPayload());
-
-					JsonNode entry0 = payload.path("entry").path(0);
-					JsonNode change0 = entry0.path("changes").path(0);
-					JsonNode value = change0.path("value");
-					JsonNode message0 = value.path("messages").path(0);
-
-					String conteudo = message0.path("text").path("body").asText();
-
-					var mensagem = new Mensagem();
-					mensagem.setDestinatario(mensagens.getPhoneNumberId());
-					mensagem.setTipo("text");
-					mensagem.setPreviewUrl(false);
-					mensagem.setConteudo(conteudo);
-
-					mensagensNovas.add(mensagem);
-					mensagens.setProcessed(true);
-					mensagens.setProcessedAt(Instant.now());
-			        mensagens.setProcessingError(null);
-			        
-			        System.out.println("✅ Processado com sucesso | inbox ID: " + mensagens.getId());
-
-					
-				} catch (Exception e) {
-					mensagens.setProcessingError(e.getMessage());
-			        mensagens.setProcessed(false);
-			        System.err.println("Erro ao processar inbox " + mensagens.getId() + ": " + e.getMessage());
-				}				
-			}
-			return mensagensNovas;
-		}
-
-	}
-
-	@Transactional
-	public void savePayload(JsonNode payload) {		
-		
+		// Navegação no JSON
 		JsonNode entry0 = payload.path("entry").path(0);
 		JsonNode change0 = entry0.path("changes").path(0);
 		JsonNode value = change0.path("value");
 
+		// Campos simples
+		String eventObject = payload.path("object").stringValue(null);
+		String eventField = change0.path("field").stringValue(null);
+		String wabaId = entry0.path("id").stringValue(null);
+
 		JsonNode metadata = value.path("metadata");
-		JsonNode contact0 = value.path("contacts").path(0);
+		String phoneNumberId = metadata.path("phone_number_id").stringValue(null);
+		String displayPhoneNumber = metadata.path("display_phone_number").stringValue(null);
+
+		String waId = value.path("contacts").path(0).path("wa_id").stringValue(null);
+
+		// Mensagem inbound (se existir)
 		JsonNode message0 = value.path("messages").path(0);
+		String messageId = message0.path("id").stringValue(null);
+
+		Long messageTimestamp = message0.path("timestamp").asLongOpt().isPresent()
+				? message0.path("timestamp").asLongOpt().getAsLong()
+				: null;
 
 		CaixaEntradaWebhookMeta novoPayload = new CaixaEntradaWebhookMeta();
-		novoPayload.setPayload(payload.toString());
-		novoPayload.setEventObject(text(payload, "object"));
-		novoPayload.setEventField(text(change0, "field"));
-		novoPayload.setWabaId(text(entry0, "id"));
+		novoPayload.setEventObject(eventObject);
+		novoPayload.setEventField(eventField);
+		novoPayload.setWabaId(wabaId);
+		novoPayload.setPhoneNumberId(phoneNumberId);
+		novoPayload.setDisplayPhoneNumber(displayPhoneNumber);
+		novoPayload.setWaId(waId);
+		novoPayload.setMessageId(messageId);
+		novoPayload.setMessageTimestamp(messageTimestamp);
 
-		novoPayload.setPhoneNumberId(text(metadata, "phone_number_id"));
-		novoPayload.setDisplayPhoneNumber(text(metadata, "display_phone_number"));
-
-		novoPayload.setWaId(text(contact0, "wa_id"));
-
-		novoPayload.setMessageId(text(message0, "id"));
-		novoPayload.setMessageTimestamp(longFromText(message0, "timestamp"));
-
-		caixaEntradaWebhookMetaRepository.save(novoPayload);
-
-	}
-
-	private String text(JsonNode node, String field) {
-		JsonNode v = node.path(field);
-		if (v.isMissingNode() || v.isNull()) {
-			return null;
-		}
-		String t = v.asText();
-		return (t != null && t.isBlank()) ? null : t;
-	}
-
-	private Long longFromText(JsonNode node, String field) {
-		String raw = text(node, field);
-		if (raw == null) {
-			return null;
-		}
+		// JSON cru -> texto
 		try {
-			return Long.parseLong(raw);
-		} catch (NumberFormatException e) {
-			return null;
+			novoPayload.setPayload(objectMapper.writeValueAsString(payload));
+		} catch (JacksonException e) {
+			throw new IllegalStateException("Erro ao serializar payload", e);
+		}
+
+		// Salva. Se duplicar (unique message_id), ignora.
+		try {
+			caixaEntradaWebhookMetaRepository.save(novoPayload);
+			// (se a exception está estourando fora do save):
+			// caixaEntradaWebhookMetaRepository.flush();
+		} catch (DataIntegrityViolationException ex) {
+			// Duplicado por UNIQUE(message_id): não é erro para webhook, apenas ignore
+			return;
 		}
 	}
 
 }
-

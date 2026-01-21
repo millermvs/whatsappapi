@@ -9,7 +9,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
-import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -23,14 +22,14 @@ import lombok.Setter;
 		@Index(name = "idx_inbox_phone_number_id", columnList = "phoneNumberId"),
 		@Index(name = "idx_inbox_wa_id", columnList = "waId") })
 public class CaixaEntradaWebhookMeta {
-    @Id
+	@Id
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
 	@Column(nullable = false)
 	private Instant receivedAt;
 
-	@Column(nullable = false)
+	@Column
 	private String eventObject;
 
 	@Column

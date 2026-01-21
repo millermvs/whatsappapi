@@ -2,7 +2,7 @@ package br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.mapper
 
 import org.springframework.stereotype.Component;
 
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.models.Mensagem;
+import br.com.automica.api.whatsapp.modules.whatsapp.domain.models.MensagemOut;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.dtos.request.mensagemtemplate.LanguageAninhado;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.dtos.request.mensagemtemplate.MetaMensagemTemplateRequestDto;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.dtos.request.mensagemtemplate.TemplateAninhado;
@@ -12,7 +12,7 @@ import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.meta.dtos.re
 @Component
 public class MetaMensagemMapper {
 
-	public MetaMensagemDeTextoRequest transformarMetaMensagemDeTexto(Mensagem mensagem) {
+	public MetaMensagemDeTextoRequest transformarMetaMensagemDeTexto(MensagemOut mensagem) {
 		var text = new TextAninhado();
 		text.setPreview_url(mensagem.getPreviewUrl());
 		text.setBody(mensagem.getConteudo());
@@ -25,11 +25,11 @@ public class MetaMensagemMapper {
 		response.setText(text);
 		return response;
 	}
-	
+
 	public MetaMensagemTemplateRequestDto transformarMetaMensagemTemplate(String destinatario) {
 		var language = new LanguageAninhado();
 		language.setCode("pt_Br");
-		
+
 		var template = new TemplateAninhado();
 		template.setName("01_conversa_informacoes");
 		template.setLanguage(language);
@@ -43,4 +43,3 @@ public class MetaMensagemMapper {
 		return response;
 	}
 }
-

@@ -15,6 +15,6 @@ public class SchedulingComponent {
 	@Scheduled(fixedDelay = 150000000)
     public void processarPendentes() {
 		System.out.println("⏰ Scheduler rodando...");
-        caixaEntradaWebhookMetaService.buscarMensagemNaoProcessadas();
+        //caixaEntradaWebhookMetaService.buscarMensagemNaoProcessadas();
     }
 }

@@ -17,4 +17,7 @@ public interface CaixaEntradaWebhookMetaRepository extends JpaRepository<CaixaEn
 			ORDER BY m.messageTimestamp
 			""")
 	List<CaixaEntradaWebhookMeta> findByProcessedFalse();
+
+	boolean existsByMessageId(String messageId);
+
 }

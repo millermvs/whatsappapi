@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Mensagem {
+public class MensagemOut {
 
     private String destinatario;
 
