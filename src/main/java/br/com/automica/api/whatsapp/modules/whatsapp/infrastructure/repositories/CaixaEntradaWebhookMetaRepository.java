@@ -20,4 +20,5 @@ public interface CaixaEntradaWebhookMetaRepository extends JpaRepository<CaixaEn
 
 	boolean existsByMessageId(String messageId);
 
+
 }

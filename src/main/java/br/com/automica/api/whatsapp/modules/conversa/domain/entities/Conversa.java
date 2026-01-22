@@ -1,4 +1,4 @@
-package br.com.automica.api.whatsapp.modules.conversa.entities;
+package br.com.automica.api.whatsapp.modules.conversa.domain.entities;
 
 import java.time.Instant;
 

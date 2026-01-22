@@ -1,9 +1,12 @@
 package br.com.automica.api.whatsapp.modules.whatsapp.domain.services;
 
+import java.time.Instant;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.conversa.ConversaRequestDto;
 import br.com.automica.api.whatsapp.modules.whatsapp.domain.entities.CaixaEntradaWebhookMeta;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.repositories.CaixaEntradaWebhookMetaRepository;
 import tools.jackson.core.JacksonException;
