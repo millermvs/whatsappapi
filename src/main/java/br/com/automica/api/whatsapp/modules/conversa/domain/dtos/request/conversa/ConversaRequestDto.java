@@ -18,4 +18,7 @@ public class ConversaRequestDto {
     private Instant lastMessageAt; // Data/hora da última mensagem recebida ou enviada. Ordenar a lista de conversas
 
     private String lastMessageId; // ID da última mensagem processada. Útil para debug, auditoria ou correlação futura
+
+    private String wabaId; // Identificação do cliente no WhatsApp Business
+
 }

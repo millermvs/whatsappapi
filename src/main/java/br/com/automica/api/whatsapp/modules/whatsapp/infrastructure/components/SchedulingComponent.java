@@ -7,6 +7,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.conversa.ConversaRequestDto;
+import br.com.automica.api.whatsapp.modules.whatsapp.domain.gateways.ConversaGateway;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.repositories.CaixaEntradaWebhookMetaRepository;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -19,6 +20,9 @@ public class SchedulingComponent {
 
 	@Autowired
 	private CaixaEntradaWebhookMetaRepository caixaEntradaWebhookMetaRepository;
+
+	@Autowired
+	private ConversaGateway conversaGateway;
 
 	@Scheduled(fixedDelay = 15000)
 	public void processarPendentes() {
@@ -48,6 +52,7 @@ public class SchedulingComponent {
 				String phoneNumberId = metadata.path("phone_number_id").stringValue(null);
 				String displayPhoneNumber = metadata.path("display_phone_number").stringValue(null);
 				String messageId = message0.path("id").stringValue(null);
+				String wabaId = entry0.path("id").stringValue(null);;
 
 				// timestamp vem como "string numérica"
 				long messageTimestamp = Long.parseLong(message0.path("timestamp").stringValue(null));
@@ -58,6 +63,7 @@ public class SchedulingComponent {
 				conversaRequestDto.setDisplayPhoneNumber(displayPhoneNumber);
 				conversaRequestDto.setLastMessageAt(Instant.ofEpochSecond(messageTimestamp));
 				conversaRequestDto.setLastMessageId(messageId);
+				conversaRequestDto.setWabaId(wabaId);
 
 				// fazer o que precisa com o DTO
 				// conversaService.criarOuAtualizar(conversaRequestDto);
@@ -67,6 +73,9 @@ public class SchedulingComponent {
 						+ " msgId=" + messageId
 						+ " lastMessageAt=" + Instant.ofEpochSecond(messageTimestamp));
 
+				conversaGateway.criarConversa(conversaRequestDto);
+
+				//TODO:
 				// marque como processada se der tudo certo
 				// mensagem.setProcessed(true);
 				// mensagem.setProcessedAt(Instant.now());

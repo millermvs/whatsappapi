@@ -30,9 +30,14 @@ public class Conversa {
     private Long id;
 
     @Column(name = "wa_id", nullable = false)
-    // Identificação do cliente no WhatsApp (remetente)
+    // Identificação do cliente no WhatsApp
     // Ex: 5521965250053
     private String waId;
+
+     @Column(name = "waba_id", nullable = false)
+    // Identificação do cliente no WhatsApp Business
+    // Ex: 459801293879309
+    private String wabaId;
 
     @Column(name = "phone_number_id", nullable = false)
     // Identificação estável do número WhatsApp Business (destinatário)
