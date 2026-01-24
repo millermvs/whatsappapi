@@ -1,12 +1,16 @@
 package br.com.automica.api.whatsapp.modules.conversa.domain.entities;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Getter;
@@ -27,7 +31,7 @@ public class Conversa {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     // Identificador técnico da tabela (não faz parte da identidade de negócio)
-    private Long id;
+    private Long idConversa;
 
     @Column(name = "wa_id", nullable = false)
     // Identificação do cliente no WhatsApp
@@ -62,6 +66,9 @@ public class Conversa {
     // ID da última mensagem processada
     // Útil para debug, auditoria ou correlação futura
     private String lastMessageId;
+
+    @OneToMany(mappedBy = "conversa", fetch = FetchType.LAZY)
+    private Set<MensagemTexto> mensagensTexto = new HashSet<MensagemTexto>();
 
 }
 

@@ -21,4 +21,8 @@ public class ConversaRequestDto {
 
     private String wabaId; // Identificação do cliente no WhatsApp Business
 
+    private String idMensagem; // ID da mensagem recebida
+
+    private String bodyText; // Texto da mensagem recebida
+
 }
