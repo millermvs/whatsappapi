@@ -15,7 +15,7 @@ public class MetaMensagemMapper {
 	public MetaMensagemDeTextoRequest transformarMetaMensagemDeTexto(MensagemOut mensagem) {
 		var text = new TextAninhado();
 		text.setPreview_url(mensagem.getPreviewUrl());
-		text.setBody(mensagem.getConteudo());
+		text.setBody(mensagem.getBody());
 
 		var response = new MetaMensagemDeTextoRequest();
 		response.setMessaging_product("whatsapp");

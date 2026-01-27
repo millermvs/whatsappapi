@@ -11,7 +11,7 @@ public class MensagemOut {
 
 	private String tipo;
 
-	private String conteudo;
+	private String body;
 
 	private Boolean previewUrl;
 }

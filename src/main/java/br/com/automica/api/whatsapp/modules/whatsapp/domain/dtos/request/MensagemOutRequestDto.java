@@ -1,4 +1,4 @@
-package br.com.automica.api.whatsapp.modules.whatsapp.domain.dtos.request.mensagem;
+package br.com.automica.api.whatsapp.modules.whatsapp.domain.dtos.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,10 +7,12 @@ import lombok.Setter;
 @Setter
 public class MensagemOutRequestDto {
 
-	private String destinatario;
+    private String destinatario;
 
 	private String tipo;
 
 	private String conteudo;
+
+	private Boolean previewUrl;
 
 }
