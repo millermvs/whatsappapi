@@ -24,7 +24,7 @@ public class SchedulingComponent {
 	@Autowired
 	private ConversaGateway conversaGateway;
 
-	@Scheduled(fixedDelay = 5000) // Executa a cada 5 segundos
+	@Scheduled(fixedDelay = 15000) // Executa a cada 15 segundos
 	public void processarPendentes() {
 		System.out.println("Scheduler rodando...");
 		var mensagensPendentes = caixaEntradaWebhookMetaRepository.findByProcessedFalse();
@@ -34,6 +34,9 @@ public class SchedulingComponent {
 			for (var mensagem : mensagensPendentes) {
 				JsonNode payload = objectMapper.readTree(mensagem.getPayload());
 				conversaGateway.filtrar(payload);
+				mensagem.setProcessed(true);
+				mensagem.setProcessedAt(Instant.now());
+				caixaEntradaWebhookMetaRepository.save(mensagem);
 			}
 
 		} else {

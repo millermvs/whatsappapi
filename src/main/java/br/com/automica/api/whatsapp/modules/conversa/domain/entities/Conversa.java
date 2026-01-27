@@ -68,7 +68,7 @@ public class Conversa {
     private String lastMessageId;
 
     @OneToMany(mappedBy = "conversa", fetch = FetchType.LAZY)
-    private Set<MensagemTexto> mensagensTexto = new HashSet<MensagemTexto>();
+    private Set<Mensagem> mensagensTexto = new HashSet<Mensagem>();
 
 }
 

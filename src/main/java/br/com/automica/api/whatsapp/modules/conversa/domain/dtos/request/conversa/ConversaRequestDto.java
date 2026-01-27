@@ -23,6 +23,8 @@ public class ConversaRequestDto {
 
     private String idMensagem; // ID da mensagem recebida
 
+    private String typeMessage; // Tipo da mensagem recebida (text, image, etc)
+
     private String bodyText; // Texto da mensagem recebida
 
 }

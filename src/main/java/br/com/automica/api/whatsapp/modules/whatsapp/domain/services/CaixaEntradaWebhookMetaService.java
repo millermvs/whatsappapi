@@ -1,12 +1,9 @@
 package br.com.automica.api.whatsapp.modules.whatsapp.domain.services;
 
-import java.time.Instant;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.conversa.ConversaRequestDto;
 import br.com.automica.api.whatsapp.modules.whatsapp.domain.entities.CaixaEntradaWebhookMeta;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.repositories.CaixaEntradaWebhookMetaRepository;
 import tools.jackson.core.JacksonException;
@@ -62,7 +59,7 @@ public class CaixaEntradaWebhookMetaService {
 		try {
 			novoPayload.setPayload(objectMapper.writeValueAsString(payload));
 		} catch (JacksonException e) {
-			throw new IllegalStateException("Erro ao serializar payload", e);
+			throw new IllegalStateException("JSON PRINCIPAL: Erro ao serializar payload", e);
 		}
 
 		// Salva. Se duplicar (unique message_id), ignora.
@@ -71,6 +68,7 @@ public class CaixaEntradaWebhookMetaService {
 			// (se a exception está estourando fora do save):
 			// caixaEntradaWebhookMetaRepository.flush();
 		} catch (DataIntegrityViolationException ex) {
+			System.out.println("Duplicado por UNIQUE(message_id): " + ex.getMessage());
 			// Duplicado por UNIQUE(message_id): não é erro para webhook, apenas ignore
 			return;
 		}

@@ -3,9 +3,9 @@ package br.com.automica.api.whatsapp.modules.conversa.infrastructure.repositorie
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import br.com.automica.api.whatsapp.modules.conversa.domain.entities.MensagemTexto;
+import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Mensagem;
 
 @Repository
-public interface MensagemTextoRepository extends JpaRepository<MensagemTexto, String> {
+public interface MensagemRepository extends JpaRepository<Mensagem, String> {
 
 }
