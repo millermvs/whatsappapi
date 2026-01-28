@@ -1,9 +1,12 @@
 package br.com.automica.api.whatsapp.modules.conversa.domain.service;
 
+import java.util.UUID;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.mensagem.request.MensagemRequestDto;
+import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Conversa;
 import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Mensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.DirecaoMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.StatusMensagem;
@@ -34,11 +37,12 @@ public class MensagemService {
 
     public void enviarMensagemTexto(MensagemRequestDto request) {
         var idConversa = request.getIdConversa();
-        var conversa = conversaRepository.findById(idConversa);
+        Conversa conversa = conversaRepository.findById(idConversa).get();
 
-        if (conversa.isPresent()) {
+        if (conversa != null) {
             var mensagem = new Mensagem();
-            mensagem.setConversa(conversa.get());
+            mensagem.setIdMensagem(UUID.randomUUID().toString());
+            mensagem.setConversa(conversa);
             mensagem.setBody(request.getBody());
             mensagem.setDirecaoMensagem(DirecaoMensagem.SAIDA);
             mensagem.setStatus(StatusMensagem.ENVIADA);
