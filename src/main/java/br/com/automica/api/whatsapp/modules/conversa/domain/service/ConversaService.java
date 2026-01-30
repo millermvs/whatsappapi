@@ -3,14 +3,20 @@ package br.com.automica.api.whatsapp.modules.conversa.domain.service;
 import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.conversa.ConversaRequestDto;
+import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.response.ListaDeConversasResponseDto;
 import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Conversa;
 import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Mensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.DirecaoMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.StatusMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.TipoMensagem;
+import br.com.automica.api.whatsapp.modules.conversa.domain.exceptions.NaoEncontradoException;
 import br.com.automica.api.whatsapp.modules.conversa.domain.gateways.WhatsAppGateway;
 import br.com.automica.api.whatsapp.modules.conversa.infrastructure.repositories.ConversaRepository;
 import br.com.automica.api.whatsapp.modules.conversa.infrastructure.repositories.MensagemRepository;
@@ -30,6 +36,30 @@ public class ConversaService {
     private WhatsAppGateway whatsAppGateway;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    // Metodo para listar conversas paginado
+    @Transactional(readOnly = true)
+    public Page<ListaDeConversasResponseDto> listarConversas(Integer page, Integer size) {
+
+        var pageable = PageRequest.of(page, size, Sort.by("lastMessageAt").descending());
+
+        var paginaConversas = conversaRepository.findAllBy(pageable);
+
+        if (paginaConversas.isEmpty())
+            throw new NaoEncontradoException("Nenhuma conversa encontrada.");
+
+        return paginaConversas.map(conversa -> {
+            var dtoItem = new ListaDeConversasResponseDto();
+            dtoItem.setCreatedAt(conversa.getCreatedAt());
+            dtoItem.setDisplayPhoneNumber(conversa.getDisplayPhoneNumber());
+            dtoItem.setLastMessageAt(conversa.getLastMessageAt());
+            dtoItem.setLastMessageId(conversa.getLastMessageId());
+            dtoItem.setPhoneNumberId(conversa.getPhoneNumberId());
+            dtoItem.setWaId(conversa.getWaId());
+            dtoItem.setWabaId(conversa.getWabaId());
+            return dtoItem;
+        });
+    }
 
     // Metodo para criar conversa com mensagem de template da Meta (usado pelo
     // controller)

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import br.com.automica.api.whatsapp.modules.conversa.domain.exceptions.NaoEncontradoException;
 import br.com.automica.api.whatsapp.modules.conversa.domain.exceptions.RegraNegocioException;
 
 @ControllerAdvice
@@ -25,5 +26,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RegraNegocioException.class)
 	public ResponseEntity<Object> handlerRegraNegocio(RegraNegocioException ex) {
 		return createResponse(HttpStatus.UNPROCESSABLE_CONTENT, ex);
+	}
+
+	@ExceptionHandler(NaoEncontradoException.class)
+	public ResponseEntity<Object> handlerNaoEncontrado(NaoEncontradoException ex) {
+		return createResponse(HttpStatus.NOT_FOUND, ex);
 	}
 }
