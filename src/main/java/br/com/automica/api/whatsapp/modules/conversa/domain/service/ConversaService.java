@@ -57,6 +57,7 @@ public class ConversaService {
             dtoItem.setPhoneNumberId(conversa.getPhoneNumberId());
             dtoItem.setWaId(conversa.getWaId());
             dtoItem.setWabaId(conversa.getWabaId());
+            dtoItem.setIdConversa(conversa.getIdConversa());
             return dtoItem;
         });
     }

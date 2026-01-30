@@ -1,7 +1,6 @@
 package br.com.automica.api.whatsapp.modules.conversa.domain.dtos.response;
 
 import java.time.Instant;
-import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +22,8 @@ public class ListaDeConversasResponseDto {
     private Instant lastMessageAt;
 
     private String lastMessageId;
+
+    private Long idConversa;
 
     // private List<MesagensDaConversaResponseDto> mensagensTexto;
 

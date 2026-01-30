@@ -4,10 +4,13 @@ import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.mensagem.request.MensagemRequestDto;
+import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.response.MensagensDaConversaResponseDto;
 import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Conversa;
 import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Mensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.DirecaoMensagem;
@@ -33,6 +36,20 @@ public class MensagemService {
     private WhatsAppGateway whatsAppGateway;
 
     private ObjectMapper objectMapper = new ObjectMapper();
+
+    @Transactional(readOnly = true)
+    public Page<MensagensDaConversaResponseDto> listarMensagensDaConversa(Long idConversa, Integer page, Integer size) {
+
+        var pageable = PageRequest.of(page, size);
+
+        var paginaMensagens = mensagemRepository.findByIdConversa(idConversa, pageable);
+
+        return paginaMensagens.map(mensagem -> {
+            var dtoItem = new MensagensDaConversaResponseDto();
+            dtoItem.setMensagem(mensagem.getBody());
+            return dtoItem;
+        });
+    }
 
     @Transactional
     public String enviarMensagemTexto(MensagemRequestDto request) {
