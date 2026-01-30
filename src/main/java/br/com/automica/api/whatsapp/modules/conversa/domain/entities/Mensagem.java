@@ -1,5 +1,7 @@
 package br.com.automica.api.whatsapp.modules.conversa.domain.entities;
 
+import java.time.Instant;
+
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.DirecaoMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.StatusMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.TipoMensagem;
@@ -43,5 +45,22 @@ public class Mensagem {
     @Column
     private StatusMensagem status; // ENVIADA, RECEBIDA, PROCESSADA
 
+    @Column
+    private Instant recebidaEm; // timestamp de quando a mensagem foi recebida pelo sistema
+
+    @Column
+    private Boolean processada; // indica se a mensagem foi processada pelo sistema
+
+    @Column
+    private Instant processadaEm; // timestamp de quando a mensagem foi processada pelo sistema
+
+    @Column
+    private Instant enviadaEm; // timestamp de quando a mensagem foi enviada ao WhatsApp
+
+    @Column
+    private Instant entregueEm; // timestamp de quando a mensagem foi entregue ao destinatário
+
+    @Column
+    private Instant visualizadaEm; // timestamp de quando a mensagem foi visualizada pelo destinatário
 
 }

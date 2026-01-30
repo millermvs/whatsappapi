@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.automica.api.whatsapp.modules.conversa.domain.dtos.request.mensagem.request.MensagemRequestDto;
@@ -20,14 +19,7 @@ public class MenssagemController {
 
 	@PostMapping("texto")
 	public ResponseEntity<String> post(@RequestBody MensagemRequestDto request) {
-		mensagemService.enviarMensagemTexto(request);
-		return ResponseEntity.ok().build();
-	}
-
-	@PostMapping("template")
-	public ResponseEntity<String> postTemplate(@RequestParam String destinatario) {
-		var response = mensagemService.enviarTemplate(destinatario);
+		var response = mensagemService.enviarMensagemTexto(request);
 		return ResponseEntity.ok(response);
 	}
-
 }

@@ -44,7 +44,7 @@ public class WhatsAppWebhookController {
 	public ResponseEntity<Void> receberWebhook(@RequestBody JsonNode payload) {
 
 		caixaEntradaWebhookMeta.savePayload(payload);
-
+		
 		//System.out.println("WEBHOOK RECEBIDO: " + payload);
 
 		return ResponseEntity.ok().build();

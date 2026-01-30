@@ -21,8 +21,29 @@ public class MetaMensagemMapper {
 		response.setMessaging_product("whatsapp");
 		response.setRecipient_type("individual");
 		response.setTo(mensagem.getDestinatario());
-		response.setType(mensagem.getTipo());
 		response.setText(text);
+
+		String tipo = mensagem.getTipo();
+		switch (tipo) {
+			case "TEXTO":
+				response.setType("text");
+				break;
+			case "IMAGEM":
+				response.setType("image");
+				break;
+			case "DOCUMENTO":
+				response.setType("document");
+				break;
+			case "VIDEO":
+				response.setType("video");
+				break;
+			case "AUDIO":
+				response.setType("audio");
+				break;
+			default:
+				break;
+		}
+
 		return response;
 	}
 

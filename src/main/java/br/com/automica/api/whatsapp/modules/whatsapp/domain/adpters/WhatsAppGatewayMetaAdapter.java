@@ -22,14 +22,15 @@ public class WhatsAppGatewayMetaAdapter implements WhatsAppGateway {
 		mensagem.setBody(mensagemRequest.getBody());
 		mensagem.setPreviewUrl(false);
 
-		caixaSaidaWebhookMetaService.enviarMensagem(mensagem);
+		var response = caixaSaidaWebhookMetaService.enviarMensagem(mensagem);
 
-		return "Mensagem enviada via Meta";
+		return response;
 	}
 
 	@Override
 	public String enviarMensagemTemplate(String destinatario) {
-		caixaSaidaWebhookMetaService.enviarTemplate(destinatario);
-		return "Template enviado via Meta";
+		var response = caixaSaidaWebhookMetaService.enviarTemplate(destinatario);
+		
+		return response;
 	}
 }

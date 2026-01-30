@@ -20,7 +20,7 @@ public class MetaWhatsAppClient {
 	}
 
 	public String enviarMensagemTexto(MetaMensagemDeTextoRequest mensagem) {
-		return webClient.post().uri("v22.0/445562525305334/messages")
+		return webClient.post().uri("v24.0/445562525305334/messages")
 				.header("Authorization", "Bearer " + this.token).bodyValue(mensagem).retrieve().bodyToMono(String.class)
 				.block();
 	}

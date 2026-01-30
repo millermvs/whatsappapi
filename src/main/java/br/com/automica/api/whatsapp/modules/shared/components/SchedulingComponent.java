@@ -1,4 +1,4 @@
-package br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.components;
+package br.com.automica.api.whatsapp.modules.shared.components;
 
 import java.time.Instant;
 
@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import br.com.automica.api.whatsapp.modules.whatsapp.domain.gateways.ConversaGateway;
+import br.com.automica.api.whatsapp.modules.conversa.domain.gateways.PayloadGateway;
 import br.com.automica.api.whatsapp.modules.whatsapp.infrastructure.repositories.CaixaEntradaWebhookMetaRepository;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
@@ -21,7 +21,7 @@ public class SchedulingComponent {
 	private CaixaEntradaWebhookMetaRepository caixaEntradaWebhookMetaRepository;
 
 	@Autowired
-	private ConversaGateway conversaGateway;
+	private PayloadGateway filtrarPayload;
 
 	@Scheduled(fixedDelay = 15000) // Executa a cada 15 segundos
 	public void processarPendentes() {
@@ -29,10 +29,9 @@ public class SchedulingComponent {
 		var mensagensPendentes = caixaEntradaWebhookMetaRepository.findByProcessedFalse();
 
 		if (mensagensPendentes != null && !mensagensPendentes.isEmpty()) {
-			System.out.println(" Mensagens pendentes encontradas: " + mensagensPendentes.size());
 			for (var mensagem : mensagensPendentes) {
 				JsonNode payload = objectMapper.readTree(mensagem.getPayload());
-				conversaGateway.filtrar(payload);
+				filtrarPayload.filtrarPayload(payload);
 				mensagem.setProcessed(true);
 				mensagem.setProcessedAt(Instant.now());
 				caixaEntradaWebhookMetaRepository.save(mensagem);

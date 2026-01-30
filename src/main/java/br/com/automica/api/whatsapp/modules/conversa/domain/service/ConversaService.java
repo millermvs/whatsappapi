@@ -11,9 +11,11 @@ import br.com.automica.api.whatsapp.modules.conversa.domain.entities.Mensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.DirecaoMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.StatusMensagem;
 import br.com.automica.api.whatsapp.modules.conversa.domain.enums.TipoMensagem;
+import br.com.automica.api.whatsapp.modules.conversa.domain.gateways.WhatsAppGateway;
 import br.com.automica.api.whatsapp.modules.conversa.infrastructure.repositories.ConversaRepository;
 import br.com.automica.api.whatsapp.modules.conversa.infrastructure.repositories.MensagemRepository;
 import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class ConversaService {
@@ -24,51 +26,87 @@ public class ConversaService {
     @Autowired
     private MensagemRepository mensagemRepository;
 
-    public String filtrar(JsonNode payload) {
+    @Autowired
+    private WhatsAppGateway whatsAppGateway;
 
-        JsonNode entry0 = payload.path("entry").path(0);
-        JsonNode change0 = entry0.path("changes").path(0);
-        JsonNode value = change0.path("value");
+    private ObjectMapper objectMapper = new ObjectMapper();
 
-        JsonNode metadata = value.path("metadata");
-        JsonNode contact0 = value.path("contacts").path(0);
-        JsonNode message0 = value.path("messages").path(0);
+    // Metodo para criar conversa com mensagem de template da Meta (usado pelo
+    // controller)
+    public String criarConversaSistema(String waid, String phoneNumberId, String wabaId) {
+        var conversaExistente = conversaRepository.findByWaIdAndPhoneNumberId(waid, phoneNumberId);
+        String response = "";
+        // Conversa ja existe para waId e phoneNumberId
+        if (conversaExistente != null) {
+            try {
+                String enviado = whatsAppGateway.enviarMensagemTemplate(waid);
+                JsonNode payload = objectMapper.readTree(enviado);
 
-        // Se contem waId sera mensagem de conversa
-        String waId = contact0.path("wa_id").stringValue(null);
-        if (waId != null) {
-            String phoneNumberId = metadata.path("phone_number_id").stringValue(null);
-            String displayPhoneNumber = metadata.path("display_phone_number").stringValue(null);
-            String messageId = message0.path("id").stringValue(null);
-            String wabaId = entry0.path("id").stringValue(null);
-            String bodyText = message0.path("text").path("body").stringValue(null);
-            String typeMessage = message0.path("type").stringValue(null);
+                JsonNode messages = payload.path("messages");
 
-            // timestamp vem como "string numérica"
-            long messageTimestamp = Long.parseLong(message0.path("timestamp").stringValue(null));
+                for (JsonNode message : messages) {
+                    String idMeta = message.path("id").stringValue();
 
-            var conversaRequestDto = new ConversaRequestDto();
-            conversaRequestDto.setWaId(waId);
-            conversaRequestDto.setPhoneNumberId(phoneNumberId);
-            conversaRequestDto.setDisplayPhoneNumber(displayPhoneNumber);
-            conversaRequestDto.setLastMessageAt(Instant.ofEpochSecond(messageTimestamp));
-            conversaRequestDto.setLastMessageId(messageId);
-            conversaRequestDto.setWabaId(wabaId);
-            conversaRequestDto.setTypeMessage(typeMessage);
-            conversaRequestDto.setBodyText(bodyText);
-            conversaRequestDto.setIdMensagem(messageId);
-            criarConversa(conversaRequestDto);
-        } else {
-            System.out.println("Não é uma mensagem de conversa válida.");
-            return "Não é uma mensagem de conversa válida.";
+                    var mensagem = new Mensagem();
+                    mensagem.setIdMensagem(idMeta);
+                    mensagem.setConversa(conversaExistente);
+                    mensagem.setDirecaoMensagem(DirecaoMensagem.SAIDA);
+                    mensagem.setTipoMensagem(TipoMensagem.TEXTO);
+                    mensagem.setBody("Template enviado pela Meta, aguarde a resposta do destinatário.");
+                    mensagem.setEnviadaEm(Instant.now());
+                    mensagem.setStatus(StatusMensagem.ENVIADA);
+                    mensagem.setProcessada(false);
+                    mensagemRepository.save(mensagem);
+                    conversaExistente.setLastMessageAt(Instant.now());
+                    conversaExistente.setLastMessageId(idMeta);
+                }
+                return response = "Conversa existente encontrada. Template reenviado com sucesso.";
+            } catch (Exception e) {
+                response = "Erro ao enviar mensagem de template na conversa existente: " + e.getMessage();
+            }
+
+            return response;
         }
-        return "Filtrado com sucesso!";
+
+        // Conversa nao existe para waId e phoneNumberId
+        var novaConversa = new Conversa();
+        novaConversa.setWaId(waid);
+        novaConversa.setPhoneNumberId(phoneNumberId);
+        novaConversa.setWabaId(wabaId);
+        novaConversa.setCreatedAt(Instant.now());
+        novaConversa.setLastMessageAt(Instant.now());
+        // Salvar a nova conversa no banco de dados
+        conversaRepository.save(novaConversa);
+
+        String enviado = whatsAppGateway.enviarMensagemTemplate(waid);
+        JsonNode payload = objectMapper.readTree(enviado);
+
+        JsonNode messages = payload.path("messages");
+        for (JsonNode message : messages) {
+            String idMeta = message.path("id").stringValue();
+
+            var mensagem = new Mensagem();
+            mensagem.setIdMensagem(idMeta);
+            mensagem.setConversa(novaConversa);
+            mensagem.setDirecaoMensagem(DirecaoMensagem.SAIDA);
+            mensagem.setTipoMensagem(TipoMensagem.TEXTO);
+            mensagem.setBody("Template enviado pela Meta, aguarde a resposta do destinatário.");
+            mensagem.setEnviadaEm(Instant.now());
+            mensagem.setStatus(StatusMensagem.ENVIADA);
+            mensagem.setProcessada(false);
+            mensagemRepository.save(mensagem);
+        }
+
+        return response = "Nova conversa criada e template enviado com sucesso.";
     }
 
+    // Metodo para criar conversa e mensagem a partir do payload recebido
     public void criarConversa(ConversaRequestDto request) {
 
         var conversaExistente = conversaRepository.findByWaIdAndPhoneNumberId(request.getWaId(),
                 request.getPhoneNumberId());
+
+        // Conversa ja existe para waId e phoneNumberId
         if (conversaExistente != null) {
 
             var mensagem = new Mensagem();
@@ -77,6 +115,8 @@ public class ConversaService {
             mensagem.setBody(request.getBodyText());
             mensagem.setDirecaoMensagem(DirecaoMensagem.ENTRADA);
             mensagem.setStatus(StatusMensagem.RECEBIDA);
+            mensagem.setRecebidaEm(Instant.now());
+            mensagem.setProcessada(false);
 
             // Definir o tipo da mensagem com base no request
             String tipoMensagem = request.getTypeMessage();
@@ -103,11 +143,15 @@ public class ConversaService {
             // Salvar a mensagem de texto associada à conversa
             mensagemRepository.save(mensagem);
 
-            System.out.println("Conversa já existe para waId=" + request.getWaId() + " e phoneNumberId="
-                    + request.getPhoneNumberId());
+            conversaExistente.setLastMessageAt(request.getLastMessageAt());
+            conversaExistente.setLastMessageId(request.getLastMessageId());
+            // Salvar a nova conversa no banco de dados
+            conversaRepository.save(conversaExistente);
+
             return;
         }
 
+        // Conversa nao existe para waId e phoneNumberId
         var novaConversa = new Conversa();
         novaConversa.setWaId(request.getWaId());
         novaConversa.setPhoneNumberId(request.getPhoneNumberId());
@@ -116,6 +160,9 @@ public class ConversaService {
         novaConversa.setLastMessageId(request.getLastMessageId());
         novaConversa.setWabaId(request.getWabaId());
         novaConversa.setCreatedAt(Instant.now());
+        novaConversa.setLastMessageAt(request.getLastMessageAt());
+        novaConversa.setLastMessageId(request.getLastMessageId());
+
         // Salvar a nova conversa no banco de dados
         conversaRepository.save(novaConversa);
 
@@ -125,6 +172,8 @@ public class ConversaService {
         mensagem.setBody(request.getBodyText());
         mensagem.setDirecaoMensagem(DirecaoMensagem.ENTRADA);
         mensagem.setStatus(StatusMensagem.RECEBIDA);
+        mensagem.setRecebidaEm(Instant.now());
+        mensagem.setProcessada(false);
 
         // Definir o tipo da mensagem com base no request
         String tipoMensagem = request.getTypeMessage();
@@ -150,6 +199,7 @@ public class ConversaService {
 
         // Salvar a mensagem de texto associada à conversa
         mensagemRepository.save(mensagem);
+
         return;
     }
 }
